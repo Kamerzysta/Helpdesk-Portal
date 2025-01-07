@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 from flask_migrate import Migrate
 from config import config
-from models import db, User, Ticket
-from dotenv import load_dotenv
+from models.models import db, User, Ticket
 import os
 
 # Load environment variables from .env
-load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)

@@ -12,7 +12,6 @@ app = Flask(__name__)
 class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///helpdesk.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
 # Configure the SQLAlchemy connection for MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@localhost/helpdesk_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
