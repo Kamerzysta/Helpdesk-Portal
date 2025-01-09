@@ -12,8 +12,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Configure the SQLAlchemy connection for MySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Password@localhost/helpdesk_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
 
 db = SQLAlchemy(app)
 
@@ -22,6 +22,7 @@ def setup_database():
     with app.app_context():
         db.create_all()
         print("Database tables created.")
+    return db
 
 if __name__ == '__main__':
     setup_database()

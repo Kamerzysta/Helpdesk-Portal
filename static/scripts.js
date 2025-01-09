@@ -1,6 +1,6 @@
 // JavaScript File: scripts.js
 
-const apiUrl = 'http://127.0.0.1:5000';
+const apiUrl = 'http://127.0.0.1:5000/api';
 
 // Fetch tickets and display them
 async function fetchTickets() {
@@ -31,9 +31,46 @@ async function fetchTickets() {
     }
 }
 
+// Function to display tickets in the table
+async function displayTickets() {
+    console.log('Fetching tickets...'); // Log when fetching starts
+    const ticketTableBody = document.getElementById('ticketTableBody');
+    console.log('ticketTableBody:', ticketTableBody); // Log the element
+
+        if (!ticketTableBody) {
+            console.error("ticketTableBody element not found");
+            return; // Exit if the element is not found
+        }
+
+    try {
+        const response = await fetch(`${apiUrl}/tickets`);
+        console.log('Response from fetch:', response); // Log the response
+        if (!response.ok) throw new Error(`Error fetching tickets: ${response.status}`);
+        const tickets = await response.json();
+        console.log('Fetched tickets:', tickets); // Log the fetched tickets
+
+        ticketTableBody.innerHTML = ''; // Clear existing tickets
+
+        tickets.forEach(ticket => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${ticket.id}</td>
+                <td>${ticket.title}</td>
+                <td>${ticket.description}</td>
+                <td>${ticket.status}</td>
+                <td>${ticket.user_id}</td>
+            `;
+            ticketTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error in displayTickets:', error);
+        alert('Failed to load tickets. Please try again later.');
+    }
+}
+
 // Handle ticket form submission
 document.getElementById('ticketForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent the default form submission
 
     try {
         const title = document.getElementById('title').value;
@@ -46,10 +83,14 @@ document.getElementById('ticketForm').addEventListener('submit', async (e) => {
             body: JSON.stringify({ title, description, user_id: parseInt(userId) })
         });
 
+        console.log('Response:', response); // Log the response
         if (!response.ok) throw new Error('Error creating ticket.');
 
+        // Reset the form after successful submission
         document.getElementById('ticketForm').reset();
-        fetchTickets();
+
+        // Refresh the ticket list to show the newly created ticket
+        await displayTickets(); // Ensure this is called to refresh the ticket list
     } catch (error) {
         console.error(error);
         alert('Failed to create ticket. Please try again.');
@@ -62,8 +103,11 @@ async function deleteTicket(ticketId) {
         const response = await fetch(`${apiUrl}/tickets/${ticketId}`, {
             method: 'DELETE'
         });
-        if (!response.ok) throw new Error('Error deleting ticket.');
-        fetchTickets();
+
+        if (!response.ok) throw new Error(`Error deleting ticket: ${response.status}`);
+
+        // Refresh the ticket list after deletion
+        await displayTickets();
     } catch (error) {
         console.error(error);
         alert('Failed to delete ticket. Please try again.');
@@ -71,22 +115,37 @@ async function deleteTicket(ticketId) {
 }
 
 // Update ticket status
-async function updateTicketStatus(ticketId, currentStatus) {
+async function updateTicketStatus(ticketId, newStatus) {
+    console.log(`Updating status for ticket ID: ${ticketId} to ${newStatus}`); // Log the ticket ID and new status
     try {
-        const newStatus = currentStatus === 'Open' ? 'Closed' : 'Open';
-
         const response = await fetch(`${apiUrl}/tickets/${ticketId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })
         });
 
-        if (!response.ok) throw new Error('Error updating ticket status.');
-        fetchTickets();
+        if (!response.ok) throw new Error(`Error updating ticket status: ${response.status}`);
+
+        // Refresh the ticket list after updating the status
+        await refreshTicketList();
     } catch (error) {
         console.error(error);
-        alert('Failed to update ticket status. Please try again.');
+        alert('Error updating ticket status. Please try again.');
     }
+}
+
+// Function to refresh the ticket list
+async function refreshTicketList() {
+    console.log('Attempting to refresh ticket list...'); // Log when refreshing starts
+    const ticketTableBody = document.getElementById('ticketTableBody');
+    console.log('ticketTableBody:', ticketTableBody); // Log the element
+
+    if (!ticketTableBody) {
+        console.error("ticketTableBody element not found");
+        return; // Exit if the element is not found
+    }
+
+    await displayTickets(); // Call displayTickets to refresh the ticket list
 }
 
 // Fetch users and display them
@@ -140,40 +199,17 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 });
 
 // Initial fetch of tickets and users
-fetchTickets();
-fetchUsers();
+document.addEventListener('DOMContentLoaded', () => {
+    fetchTickets();
+    fetchUsers();
+    displayTickets(); // Ensure this is called after the DOM is fully loaded
 
-// Function to fetch and display tickets
-async function displayTickets() {
-    try {
-        const response = await fetch('/api/tickets');
-        const tickets = await response.json();
-        
-        const ticketTableBody = document.getElementById('ticketTableBody');
-        ticketTableBody.innerHTML = '';  // Clear existing tickets
-        
-        tickets.forEach(ticket => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${ticket.id}</td>
-                <td>${ticket.title}</td>
-                <td>${ticket.description}</td>
-                <td>${ticket.status}</td>
-                <td>${ticket.user_id}</td>
-            `;
-            ticketTableBody.appendChild(row);
+    // Add event listeners for ticket status updates
+    document.querySelectorAll('.update-status-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const ticketId = e.target.dataset.ticketId; // Assuming you set data attributes
+            const newStatus = e.target.dataset.newStatus; // Assuming you set data attributes
+            updateTicketStatus(ticketId, newStatus);
         });
-    } catch (error) {
-        console.error('Error fetching tickets:', error);
-    }
-}
-
-// Call displayTickets when the page loads
-document.addEventListener('DOMContentLoaded', displayTickets);
-
-// Refresh tickets after creating a new one
-document.getElementById('ticketForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    // ... existing ticket creation code ...
-    await displayTickets();  // Refresh the ticket list
+    });
 });
