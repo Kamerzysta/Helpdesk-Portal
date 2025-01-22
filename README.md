@@ -1,7 +1,7 @@
-pip install flask-cors
+1. pip install flask-cors
 
-pip install pymysql
+2. pip install pymysql
 
-pip install flask flask-sqlalchemy flask-cors
+3. pip install flask flask-sqlalchemy flask-cors
 
-python app.py
+4. python app.py

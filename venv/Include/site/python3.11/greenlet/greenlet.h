@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-/* This is deprecated and undocumented. It does not change. */
+/* This is deprecated and undocumented. It does not change */
 #define GREENLET_VERSION "1.0.0"
 
 #ifndef GREENLET_MODULE

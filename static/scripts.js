@@ -1,5 +1,3 @@
-// JavaScript File: scripts.js
-
 const apiUrl = 'http://127.0.0.1:5000/api';
 
 // Fetch tickets and display them

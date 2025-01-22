@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 import os
 from flask_cors import CORS
 
-# Initialize Flask app
+# Initialize the Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
